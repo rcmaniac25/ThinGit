@@ -3,7 +3,7 @@ from pathlib import Path
 class TGDatabase:
 	def __init__(self, path):
 		self._path = path
-		self._exists = False #TODO
+		self._exists = path.exists()
 
 	@property
 	def path(self):
@@ -15,6 +15,5 @@ class TGDatabase:
 
 	def load(self):
 		pass
-	
 
 # XXX Been told to use sqlalchemy as a database abstraction layer
