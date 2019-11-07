@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import argparse
 from pathlib import Path
 
@@ -64,7 +65,8 @@ def preprocess_arguments(args):
 
 if __name__ == '__main__':
 	parser = create_parser()
-	args = preprocess_arguments(parser.parse_args())
+	uargs = parser.parse_args()
+	args = preprocess_arguments(uargs)
 
 	if args.logpath or args.verbose:
 		logArgs = {}
@@ -72,8 +74,15 @@ if __name__ == '__main__':
 			logArgs['filename'] = args.logpath
 		if args.verbose:
 			logArgs['level'] = logging.DEBUG
-		#TODO: change format to log timestamp as well. Useful when logging to file
+			logArgs['format'] = '%(asctime)s:%(levelname)s:%(name)s:%(lineno)d:%(thread)d:%(message)s'
+		else:
+			logArgs['format'] = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+		#logArgs['style'] = '{' #TODO: change log style
 		logging.basicConfig(**logArgs)
+
+	#log program arguments
+	#logging.info('User Args: {0}', str(uargs))
+	#logging.info('Args: {0}', str(args))
 
 	if args.dbpath:
 		db_path = Path(args.dbpath)
@@ -82,13 +91,33 @@ if __name__ == '__main__':
 	logging.debug('Creating database at "%s"', db_path)
 	db = TGDatabase(db_path.resolve())
 
-	#TODO: log loading DB
+	logging.info('Loading database')
 	db.load()
 
 	if not db.exists:
 		logging.warning('Database file doesn\'t exist')
-		print('Missing database...') #DEV: ask if one should be created: https://docs.python.org/3/library/functions.html#input
-	#TODO...
+
+		create_and_load = False
+		if not args.silent:
+			logging.debug('Requesting user\'s input on creating DB')
+			result = input('The database hasn\'t been created. Would you like to create it? (Y/n) [Y]>')
+			if result == '' or result == 'Y':
+				create_and_load = True
+			else:
+				logging.warning('User rejected request to create database with "%s"', result)
+
+		if args.silent or create_and_load:
+			logging.info('Loading database')
+			db.create_and_load()
+
+	if not db.exists:
+		logging.critical('Database doesn\'t exist. Exiting')
+		sys.exit(-1)
+	
+	logging.info('...waiting for the dev to actually finish the code...')
+	#TODO: check DB or args for info on how to run flask
+	#TODO: start background process to do work (is is that flask?)
+	#TODO: start flask
 
 	#Test code for walking folders and only checking what we're interested in
 	for (dirpath,dirnames,filenames) in os.walk('.'):
@@ -97,6 +126,8 @@ if __name__ == '__main__':
 			filepath = d.joinpath(file).resolve()
 			if filepath.suffix.lower() in supported_ext:
 				print(filepath)
+
+	logging.info('Exiting...')
 
 # Process
 # 1. Look for DB (argument), if none exists, ask if they want to create a DB (put next to executable for now)
