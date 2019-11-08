@@ -22,7 +22,6 @@ def create_parser():
 
 def preprocess_arguments(args):
 	def create_directory_paths(path):
-		print(path)
 		path.mkdir(parents=True, exist_ok=True)
 		
 	nargs = argparse.Namespace()
@@ -68,6 +67,8 @@ if __name__ == '__main__':
 	uargs = parser.parse_args()
 	args = preprocess_arguments(uargs)
 
+	print('Initializing')
+
 	if args.logpath or args.verbose:
 		logArgs = {}
 		if args.logpath:
@@ -111,8 +112,15 @@ if __name__ == '__main__':
 			db.create_and_load()
 
 	if not db.exists:
-		logging.critical('Database doesn\'t exist. Exiting')
+		errMsg = 'Database doesn\'t exist. Exiting'
+		print(errMsg)
+		logging.critical(errMsg)
 		sys.exit(-1)
+	elif not db.loaded:
+		errMsg = 'Database wasn\'t loaded. Exiting'
+		print(errMsg)
+		logging.critical(errMsg)
+		sys.exit(-2)
 	
 	logging.info('...waiting for the dev to actually finish the code...')
 	#TODO: check DB or args for info on how to run flask

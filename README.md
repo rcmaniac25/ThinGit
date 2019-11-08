@@ -25,7 +25,12 @@ TBD
 What's Needed?
 ----
 
-TBD
+Generally, a computer running Python 3.7+
+
+Requirements:
+
+- Python 3.7
+- Pipenv
 
 Plans
 ----
