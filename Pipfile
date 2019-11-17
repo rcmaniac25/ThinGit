@@ -9,6 +9,7 @@ verify_ssl = true
 flask = "*"
 sqlalchemy = "*"
 mysqlclient = "*"
+rarfile = "*"
 
 [requires]
 python_version = "3.7"

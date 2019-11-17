@@ -1,0 +1,102 @@
+User:
+- id : id
+- username : string
+- email : string
+- description : string
+
+UserValue: // key-value associated with user
+- id : id
+- user : id <user table>
+- type : enum (contactInfo, following, collection, collectedThing) // contactInfo(<network>:<network-specific value>), following(following:<user table>), collection(<collection name>:<isPublic-bool>), collectedThing(<collection name>:<thing table>)
+- key : string
+- value : string
+
+UserComment:
+- id : id
+- user : id <user table>
+- parent : id <usercomment table> [nullable if not a response]
+- comment : string
+
+UserMake:
+- id : id
+- user : id <user table>
+- description : string
+- images : list{string}
+- ?? (what was used to make print)
+
+Thing:
+- id : id
+- owner : id <user table>
+- created : datetime
+- modified : datetime
+- description : string
+- license : enum (...)
+- public : bool
+- src : string // where did the thing originally come from
+- remixed : list{id} <thing table>
+- images : list{string} // paths to images
+
+ThingValue: // key-value associated with thing (some of these are so the thing itself doesn't need to be modified every time a user does something)
+- id : id
+- user : id <thing table>
+- type : enum (tag, userLike, userCollected, userComment) // tag (tag:<value> identify it, but also mark such as "support-less"), userLike(<user>:like), userCollected(<user>:<collection ID (user value)> so it can be in multiple collections), userComment(<user>:<usercomment table>)
+- key : string
+- value : string
+
+ThingPart:
+- id : id
+- thing : id <thing table>
+- created : datetime
+- modified : datetime
+- type : enum (model, sliced, assembly, archive, other)
+- src : string // where did the part originally come from
+- path : string // if this is part of an archive (as opposed to being an archive), this is the path within the archive
+- size : ulong
+- downloads : ulong
+
+OtherThing:
+- id : id
+- part : id <thingpart table>
+- archive : id <archive table> [nullable]
+
+Model:
+- id : id
+- part : id <thingpart table>
+- archive : id <archive table> [nullable]
+- type : enum (raw, structured) // raw=stl, obj, etc. (only contains model data); structured=3mf, etc. (contains model data, slicing info, meta-data like support blockers and such, support trees, etc.)
+- submodels : list{id} <model table> // if multiple models, they may have sub-parts that have already been split off
+- image : string
+
+SlicedThing:
+- id : id
+- part : id <thingpart table>
+- src : id <model table> [nullable]
+- image : string
+- type : enum (slice, descriptor) // slice=gcode and similar, descriptor=Palette slice data or some source of metadata
+- descriptors : list{id} <slicedthing table> // gocde associated with some descriptor
+- printTime : ulong // min, at least 1. If descriptor, this can be 0
+- layerHeight : float // majority of print
+- nozzleSize : float
+- material : string // string, instead of enum, because it could be PLA... but it could be specifically Prusament PLA, or Prusa PLA, or Hatchbox PLA... and it would probably be easier to say "so long as it's PLA, ABS, PETG, etc. in the name, we can search and sub-search"
+- filamentLength : float // meters
+- weight : float // grams
+
+SlicedThingValue:
+- id : id
+- thing : id <slicedthing table>
+- type : enum (slicer, slicerValue) // slicer(<slicer>:<version>), slicerValue(<setting name>:<setting value>)
+- key : string
+- value : string
+
+Assembly:
+- id : id
+- part : id <thingpart table>
+- description : string // what is the purpose of this assembly?
+- things : list{id} // thing table. If things listed here are not public then only the model/sliced/assembly/etc. listed under the things will be visible(?? maybe... think about this)
+- image : string // full assembly
+- ?? (assembly info? location relative to other things? sets? [ex. RepWinder has the parts needed to make the RepWinder, then has sets of parts per-filament manufacturer. So have models, gcode, assembly of the RepWinder and a set of filament assemblies, each of which are themselves assemblies of models and gcodes])
+
+Archive:
+- id : id
+- part : id <thingpart table>
+- isSrc : bool // this is actually the source of the thing. If true, should really only be 1 per-thing

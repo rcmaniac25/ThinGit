@@ -44,6 +44,7 @@ def preprocess_arguments(args):
 		log = d.joinpath('output.log')
 
 		if args.dbpath:
+			#TODO handle not a file, in which case, keep it not a file
 			db = d.joinpath(os.path.basename(args.dbpath))
 		if args.logpath:
 			log = d.joinpath(os.path.basename(args.logpath))
@@ -56,6 +57,7 @@ def preprocess_arguments(args):
 		setattr(nargs, 'logpath', str(log))
 	else:
 		if args.dbpath:
+			#TODO handle when not a file
 			create_directory_paths(Path(args.dbpath).resolve())
 		if args.logpath:
 			create_directory_paths(Path(args.logpath).resolve())
@@ -86,6 +88,7 @@ if __name__ == '__main__':
 	#logging.info('Args: {0}', str(args))
 
 	if args.dbpath:
+		#TODO: handle when not a file
 		db_path = Path(args.dbpath)
 	else:
 		db_path = Path('.').joinpath('tgdb.dat')
