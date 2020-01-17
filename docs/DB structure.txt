@@ -48,6 +48,7 @@ ThingPart:
 - thing : id <thing table>
 - created : datetime
 - modified : datetime
+- revision : string
 - type : enum (model, sliced, assembly, archive, other)
 - src : string // where did the part originally come from
 - path : string // if this is part of an archive (as opposed to being an archive), this is the path within the archive
@@ -96,7 +97,7 @@ Assembly:
 - image : string // full assembly
 - ?? (assembly info? location relative to other things? sets? [ex. RepWinder has the parts needed to make the RepWinder, then has sets of parts per-filament manufacturer. So have models, gcode, assembly of the RepWinder and a set of filament assemblies, each of which are themselves assemblies of models and gcodes])
 
-Archive:
+Archive: // Like a zip file or similar
 - id : id
 - part : id <thingpart table>
 - isSrc : bool // this is actually the source of the thing. If true, should really only be 1 per-thing

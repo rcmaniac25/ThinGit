@@ -43,7 +43,7 @@ class TGDatabase:
 			#XXX might only work if paths are on the same drive (Windows)
 			relativePath = self._path.relative_to(Path.cwd())
 			logging.debug(relativePath)
-			self._engine = create_engine('mysql://{0}'.format(relativePath), echo=True) #TODO: doesn't actually work right now with a local file...
+			self._engine = create_engine('sqlite:///{0}'.format(relativePath), echo=True)
 		except Exception as e:
 			logging.exception(e)
 			return
